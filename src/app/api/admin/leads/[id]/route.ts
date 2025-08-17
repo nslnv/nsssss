@@ -1,19 +1,34 @@
 import { NextResponse } from "next/server";
-type Ctx = { params: { id: string } };
 
-export async function GET(_req: Request, { params }: Ctx) {
-  const { id } = params;
+function extractId(req: Request): string | null {
+  try {
+    const url = new URL(req.url);
+    const parts = url.pathname.split("/"); // /api/admin/leads/<id>
+    const i = parts.findIndex((p) => p === "leads");
+    return i >= 0 && parts[i + 1] ? decodeURIComponent(parts[i + 1]) : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function GET(req: Request) {
+  const id = extractId(req);
   return NextResponse.json({ ok: true, id });
 }
 
-export async function PATCH(req: Request, { params }: Ctx) {
-  const { id } = params;
+export async function PATCH(req: Request) {
+  const id = extractId(req);
   let data: unknown = null;
-  try { data = await req.json(); } catch {}
+  try {
+    data = await req.json();
+  } catch {}
   return NextResponse.json({ ok: true, id, update: data ?? null });
 }
 
-export async function DELETE(_req: Request, { params }: Ctx) {
-  const { id } = params;
-  return new NextResponse(null, { status: 204, headers: { "x-lead-id": id } });
+export async function DELETE(req: Request) {
+  const id = extractId(req);
+  return new NextResponse(null, {
+    status: 204,
+    headers: id ? { "x-lead-id": id } : {},
+  });
 }
