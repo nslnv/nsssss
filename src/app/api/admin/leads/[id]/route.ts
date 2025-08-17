@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 function extractId(req: Request): string | null {
   try {
     const url = new URL(req.url);
-    const parts = url.pathname.split("/"); // /api/admin/leads/<id>
+    const parts = url.pathname.split("/"); // /api/leads/<id>
     const i = parts.findIndex((p) => p === "leads");
     return i >= 0 && parts[i + 1] ? decodeURIComponent(parts[i + 1]) : null;
   } catch {
